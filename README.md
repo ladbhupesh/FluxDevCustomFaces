@@ -24,17 +24,31 @@ A RunPod serverless worker for generating custom face images using FLUX.1-dev wi
 
 ### Prerequisites
 
-- RunPod account
-- Hugging Face account with access token
+- RunPod account ([Sign up](https://runpod.io))
+- **Hugging Face account with access token** ([Get token](https://huggingface.co/settings/tokens))
+- Accept FLUX.1-dev license ([Click here](https://huggingface.co/black-forest-labs/FLUX.1-dev))
 - AWS account with S3 bucket (optional, for image upload)
 
 ### Building the Docker Image
 
+**⚠️ IMPORTANT:** Building requires a Hugging Face token with access to FLUX.1-dev.
+
 ```bash
-docker build -t flux-custom-faces:latest .
+# Set your HF token
+export HF_TOKEN="hf_your_token_here"
+
+# Build using the provided script
+./build.sh
+
+# Or build directly with Docker
+docker build --build-arg HF_TOKEN="${HF_TOKEN}" -t flux-custom-faces:latest .
 ```
 
-**Note**: The build process will download ~20GB of model weights, so it may take some time.
+**Note**: The build process will download ~20GB of model weights and take 30-60 minutes.
+
+**📖 Detailed Build Guide**: See [BUILD_INSTRUCTIONS.md](BUILD_INSTRUCTIONS.md) for complete build documentation.
+
+**🚀 Quick Start**: See [START_HERE.md](START_HERE.md) for step-by-step instructions.
 
 ### Deploying to RunPod
 

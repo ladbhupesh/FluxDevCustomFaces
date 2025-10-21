@@ -12,6 +12,7 @@ echo ""
 # Configuration
 IMAGE_NAME="flux-custom-faces"
 TAG="latest"
+HF_TOKEN="${HF_TOKEN:-}"
 
 # Parse command line arguments
 while [[ $# -gt 0 ]]; do
@@ -29,9 +30,13 @@ while [[ $# -gt 0 ]]; do
       REGISTRY="$2"
       shift 2
       ;;
+    --hf-token)
+      HF_TOKEN="$2"
+      shift 2
+      ;;
     *)
       echo "Unknown option: $1"
-      echo "Usage: $0 [--tag TAG] [--name NAME] [--push REGISTRY]"
+      echo "Usage: $0 [--tag TAG] [--name NAME] [--push REGISTRY] [--hf-token TOKEN]"
       exit 1
       ;;
   esac
@@ -39,7 +44,23 @@ done
 
 FULL_IMAGE_NAME="${IMAGE_NAME}:${TAG}"
 
+# Check for HF_TOKEN
+if [ -z "$HF_TOKEN" ]; then
+    echo "❌ ERROR: HF_TOKEN is required!"
+    echo ""
+    echo "FLUX.1-dev requires Hugging Face authentication."
+    echo ""
+    echo "Please provide your Hugging Face token:"
+    echo "  1. Set environment variable: export HF_TOKEN='hf_your_token'"
+    echo "  2. Or use command line: ./build.sh --hf-token 'hf_your_token'"
+    echo ""
+    echo "Get your token from: https://huggingface.co/settings/tokens"
+    echo ""
+    exit 1
+fi
+
 echo "Building image: ${FULL_IMAGE_NAME}"
+echo "✓ HF_TOKEN: ${HF_TOKEN:0:10}..." # Show only first 10 chars for security
 echo ""
 echo "⚠️  Note: This will download ~20GB of model weights"
 echo "⏱️  Estimated build time: 30-60 minutes"
@@ -56,8 +77,9 @@ echo ""
 echo "Starting build..."
 echo ""
 
-# Build the Docker image
+# Build the Docker image with HF_TOKEN
 docker build \
+  --build-arg HF_TOKEN="${HF_TOKEN}" \
   --tag "${FULL_IMAGE_NAME}" \
   --progress=plain \
   .

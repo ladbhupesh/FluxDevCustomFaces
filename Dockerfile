@@ -1,10 +1,14 @@
 # Use NVIDIA CUDA base image with Ubuntu
 FROM nvidia/cuda:12.1.0-cudnn8-runtime-ubuntu22.04
 
+# Build argument for Hugging Face token
+ARG HF_TOKEN
+
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
+ENV HF_TOKEN=${HF_TOKEN}
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \

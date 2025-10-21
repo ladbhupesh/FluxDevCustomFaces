@@ -6,7 +6,7 @@ This runs during Docker image build to cache the models
 
 import torch
 from diffusers import FluxPipeline
-from huggingface_hub import snapshot_download
+from huggingface_hub import snapshot_download, login
 import os
 
 
@@ -66,6 +66,21 @@ def main():
     print("╔" + "=" * 78 + "╗")
     print("║" + " " * 20 + "FLUX.1-dev Weights Download" + " " * 31 + "║")
     print("╚" + "=" * 78 + "╝")
+    print("\n")
+    
+    # Login to Hugging Face if token is available
+    hf_token = os.environ.get('HF_TOKEN')
+    if hf_token:
+        print("Authenticating with Hugging Face...")
+        try:
+            login(token=hf_token, add_to_git_credential=False)
+            print("✓ Successfully authenticated with Hugging Face")
+        except Exception as e:
+            print(f"⚠ Warning: Failed to authenticate with HF token: {e}")
+    else:
+        print("⚠ No HF_TOKEN provided - attempting anonymous download")
+        print("  Note: FLUX.1-dev requires authentication. Build will likely fail.")
+    
     print("\n")
     
     # Check if CUDA is available

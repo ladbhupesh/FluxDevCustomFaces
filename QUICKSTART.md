@@ -27,16 +27,27 @@ ls -la
 
 ### Step 2: Build the Docker Image
 
+**Important:** Get your Hugging Face token first:
+1. Go to https://huggingface.co/settings/tokens
+2. Create a new **Read** token
+3. Accept FLUX.1-dev license at https://huggingface.co/black-forest-labs/FLUX.1-dev
+
 ```bash
+# Set your Hugging Face token
+export HF_TOKEN="hf_your_token_here"
+
 # Build with included script
 ./build.sh
 
 # This will:
+# ✓ Authenticate with Hugging Face
 # ✓ Download FLUX.1-dev model (~20GB)
 # ✓ Download uncensored LoRA weights
 # ✓ Install all dependencies
 # ⏱️ Takes 30-60 minutes
 ```
+
+**Note:** See [BUILD_INSTRUCTIONS.md](BUILD_INSTRUCTIONS.md) for detailed build guide.
 
 **Alternative: Build on RunPod GPU Cloud**
 
