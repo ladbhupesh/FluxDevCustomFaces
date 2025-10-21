@@ -1,0 +1,8 @@
+{
+  "input": {
+    "prompt": "Portrait of a person with professional lighting",
+    "hf_token": "hf_YOUR_HUGGING_FACE_TOKEN",
+    "custom_lora_repo": "ladbhupesh/flux.1-dev-custom-faces"
+  }
+}
+

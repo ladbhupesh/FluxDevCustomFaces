@@ -1,0 +1,369 @@
+{
+  "name": "FLUX.1-dev Custom Faces",
+  "description": "Generate custom face images using FLUX.1-dev with uncensored LoRA and dynamic custom faces LoRA weights. Supports S3 upload and full parameter control.",
+  "version": "1.0.0",
+  "category": "AI Image Generation",
+  "tags": [
+    "flux",
+    "flux.1-dev",
+    "image-generation",
+    "custom-faces",
+    "lora",
+    "diffusion",
+    "s3",
+    "serverless"
+  ],
+  "author": {
+    "name": "FluxDevCustomFaces",
+    "url": "https://github.com/ladbhupesh/FluxDevCustomFaces"
+  },
+  "requirements": {
+    "gpu": {
+      "min_vram_gb": 16,
+      "recommended_vram_gb": 24,
+      "recommended_models": [
+        "NVIDIA RTX 4090",
+        "NVIDIA RTX A6000",
+        "NVIDIA A100 40GB",
+        "NVIDIA A100 80GB"
+      ]
+    },
+    "disk_gb": 30,
+    "memory_gb": 32
+  },
+  "performance": {
+    "cold_start_seconds": 120,
+    "warm_inference_seconds": 10,
+    "max_concurrent_requests": 1
+  },
+  "pricing": {
+    "estimated_cost_per_image": 0.002,
+    "estimated_images_per_hour": 300,
+    "currency": "USD"
+  },
+  "input_schema": {
+    "type": "object",
+    "required": ["prompt"],
+    "properties": {
+      "prompt": {
+        "type": "string",
+        "description": "The main text prompt describing the desired image",
+        "example": "Professional portrait of a person, studio lighting"
+      },
+      "negative_prompt": {
+        "type": "string",
+        "description": "Text prompt specifying concepts to exclude from the image",
+        "example": "blurry, low quality, distorted",
+        "default": null
+      },
+      "height": {
+        "type": "integer",
+        "description": "The height of the generated image in pixels",
+        "default": 1024,
+        "minimum": 256,
+        "maximum": 2048
+      },
+      "width": {
+        "type": "integer",
+        "description": "The width of the generated image in pixels",
+        "default": 1024,
+        "minimum": 256,
+        "maximum": 2048
+      },
+      "num_inference_steps": {
+        "type": "integer",
+        "description": "Number of denoising steps",
+        "default": 28,
+        "minimum": 1,
+        "maximum": 100
+      },
+      "guidance_scale": {
+        "type": "number",
+        "description": "Classifier-Free Guidance scale (higher = more prompt adherence)",
+        "default": 3.5,
+        "minimum": 0.0,
+        "maximum": 20.0
+      },
+      "num_images": {
+        "type": "integer",
+        "description": "Number of images to generate per prompt",
+        "default": 1,
+        "minimum": 1,
+        "maximum": 4
+      },
+      "seed": {
+        "type": "integer",
+        "description": "Random seed for reproducibility (null for random)",
+        "default": null
+      },
+      "hf_token": {
+        "type": "string",
+        "description": "Hugging Face token for accessing private repositories",
+        "default": null,
+        "sensitive": true
+      },
+      "custom_lora_repo": {
+        "type": "string",
+        "description": "Hugging Face repository ID for custom faces LoRA weights",
+        "example": "username/flux-custom-faces",
+        "default": null
+      },
+      "custom_lora_weight_name": {
+        "type": "string",
+        "description": "Filename of the LoRA weights in the repository",
+        "default": "lora.safetensors"
+      },
+      "aws_access_key_id": {
+        "type": "string",
+        "description": "AWS access key ID for S3 upload (optional)",
+        "default": null,
+        "sensitive": true
+      },
+      "aws_secret_access_key": {
+        "type": "string",
+        "description": "AWS secret access key for S3 upload (optional)",
+        "default": null,
+        "sensitive": true
+      },
+      "aws_region": {
+        "type": "string",
+        "description": "AWS region for S3",
+        "default": "ap-south-1"
+      },
+      "s3_bucket": {
+        "type": "string",
+        "description": "S3 bucket name for uploading generated images",
+        "default": null
+      },
+      "s3_prefix": {
+        "type": "string",
+        "description": "S3 key prefix for uploaded images",
+        "default": "runpods_custom_faces"
+      }
+    }
+  },
+  "output_schema": {
+    "type": "object",
+    "properties": {
+      "images": {
+        "type": "array",
+        "description": "Array of base64-encoded PNG images",
+        "items": {
+          "type": "string"
+        }
+      },
+      "image_url": {
+        "type": "string",
+        "description": "Base64-encoded PNG image (first image, for backward compatibility)"
+      },
+      "s3_urls": {
+        "type": "array",
+        "description": "Array of S3 URLs (if S3 upload was configured)",
+        "items": {
+          "type": "string"
+        }
+      },
+      "seed": {
+        "type": "integer",
+        "description": "Seed used for generation"
+      },
+      "num_images": {
+        "type": "integer",
+        "description": "Number of images generated"
+      }
+    }
+  },
+  "examples": [
+    {
+      "name": "Basic Generation",
+      "description": "Generate a single image with minimal configuration",
+      "input": {
+        "prompt": "Professional portrait of a person, studio lighting",
+        "hf_token": "hf_YOUR_TOKEN",
+        "custom_lora_repo": "username/flux-custom-faces"
+      }
+    },
+    {
+      "name": "Advanced Generation",
+      "description": "Generate with custom parameters",
+      "input": {
+        "prompt": "Portrait of a person, professional headshot, studio lighting",
+        "negative_prompt": "blurry, low quality, distorted",
+        "height": 1024,
+        "width": 1024,
+        "num_inference_steps": 28,
+        "guidance_scale": 3.5,
+        "seed": 42,
+        "hf_token": "hf_YOUR_TOKEN",
+        "custom_lora_repo": "username/flux-custom-faces"
+      }
+    },
+    {
+      "name": "With S3 Upload",
+      "description": "Generate and automatically upload to S3",
+      "input": {
+        "prompt": "Professional portrait, studio lighting",
+        "hf_token": "hf_YOUR_TOKEN",
+        "custom_lora_repo": "username/flux-custom-faces",
+        "aws_access_key_id": "YOUR_AWS_KEY",
+        "aws_secret_access_key": "YOUR_AWS_SECRET",
+        "s3_bucket": "your-bucket-name",
+        "s3_prefix": "generated_images"
+      }
+    },
+    {
+      "name": "Multiple Images",
+      "description": "Generate multiple images in one request",
+      "input": {
+        "prompt": "Portrait of a person, professional lighting",
+        "num_images": 4,
+        "seed": 42,
+        "hf_token": "hf_YOUR_TOKEN",
+        "custom_lora_repo": "username/flux-custom-faces"
+      }
+    }
+  ],
+  "documentation": {
+    "readme_url": "https://github.com/yourusername/FluxDevCustomFaces/blob/main/README.md",
+    "quickstart_url": "https://github.com/yourusername/FluxDevCustomFaces/blob/main/QUICKSTART.md",
+    "deployment_url": "https://github.com/yourusername/FluxDevCustomFaces/blob/main/DEPLOYMENT.md",
+    "examples_url": "https://github.com/yourusername/FluxDevCustomFaces/blob/main/examples/README.md"
+  },
+  "features": [
+    {
+      "title": "Pre-loaded Models",
+      "description": "FLUX.1-dev base model and uncensored LoRA weights are pre-loaded in the Docker image for fast cold starts"
+    },
+    {
+      "title": "Dynamic Custom LoRA",
+      "description": "Load custom faces LoRA weights dynamically from any Hugging Face repository per request"
+    },
+    {
+      "title": "S3 Integration",
+      "description": "Automatic upload of generated images to AWS S3 with configurable bucket and prefix"
+    },
+    {
+      "title": "Multiple Images",
+      "description": "Generate multiple images in a single request for efficiency"
+    },
+    {
+      "title": "Reproducible Results",
+      "description": "Support for seed parameter to generate consistent results"
+    },
+    {
+      "title": "Full Parameter Control",
+      "description": "Control image dimensions, inference steps, guidance scale, and more"
+    },
+    {
+      "title": "Secure",
+      "description": "AWS credentials and Hugging Face tokens are passed per request, not baked into the image"
+    },
+    {
+      "title": "Production Ready",
+      "description": "Complete error handling, logging, and validation for production use"
+    }
+  ],
+  "use_cases": [
+    "Custom portrait generation with specific faces",
+    "Brand-consistent imagery with custom models",
+    "Automated content creation pipelines",
+    "Research applications in AI generation",
+    "Creative projects with AI assistance"
+  ],
+  "limitations": [
+    "First request (cold start) takes 2-3 minutes for model compilation",
+    "Requires minimum 16GB VRAM (24GB recommended)",
+    "Custom LoRA loading adds ~5-10 seconds to first request",
+    "Maximum 4 images per request to avoid memory issues"
+  ],
+  "env_vars": [
+    {
+      "name": "HF_TOKEN",
+      "description": "Default Hugging Face token (can be overridden per request)",
+      "required": false,
+      "sensitive": true
+    },
+    {
+      "name": "AWS_ACCESS_KEY_ID",
+      "description": "Default AWS access key (can be overridden per request)",
+      "required": false,
+      "sensitive": true
+    },
+    {
+      "name": "AWS_SECRET_ACCESS_KEY",
+      "description": "Default AWS secret key (can be overridden per request)",
+      "required": false,
+      "sensitive": true
+    },
+    {
+      "name": "RUNPOD_DEBUG_LEVEL",
+      "description": "Set to DEBUG for verbose logging",
+      "required": false,
+      "default": "INFO"
+    }
+  ],
+  "health_check": {
+    "enabled": true,
+    "path": "/health",
+    "interval_seconds": 30
+  },
+  "endpoints": {
+    "runsync": {
+      "description": "Synchronous endpoint that waits for completion",
+      "timeout_seconds": 300,
+      "recommended": true
+    },
+    "run": {
+      "description": "Asynchronous endpoint that returns job ID immediately",
+      "timeout_seconds": 600
+    }
+  },
+  "optimization_tips": [
+    "Use num_inference_steps between 20-28 for best quality/speed balance",
+    "Generate multiple images in one request instead of separate requests",
+    "Use seed parameter for reproducible results during testing",
+    "Keep workers warm with periodic health checks to avoid cold starts",
+    "Reduce image dimensions to 768x768 for faster generation",
+    "Use RTX 4090 for best cost/performance ratio"
+  ],
+  "troubleshooting": [
+    {
+      "issue": "Cold start takes too long",
+      "solution": "First request compiles model (2-3 min). Subsequent requests are fast. Keep workers warm with health checks."
+    },
+    {
+      "issue": "CUDA out of memory",
+      "solution": "Reduce image dimensions, reduce num_images, or use GPU with more VRAM (24GB+ recommended)"
+    },
+    {
+      "issue": "S3 upload fails",
+      "solution": "Verify AWS credentials, check bucket permissions, ensure bucket exists in specified region"
+    },
+    {
+      "issue": "Custom LoRA loading errors",
+      "solution": "Verify Hugging Face repository is accessible, check token permissions, verify weight filename"
+    }
+  ],
+  "license": "MIT",
+  "links": {
+    "github": "https://github.com/yourusername/FluxDevCustomFaces",
+    "docker_hub": "https://hub.docker.com/r/yourusername/flux-custom-faces",
+    "flux_model": "https://huggingface.co/black-forest-labs/FLUX.1-dev",
+    "uncensored_lora": "https://huggingface.co/enhanceaiteam/Flux-uncensored"
+  },
+  "changelog": [
+    {
+      "version": "1.0.0",
+      "date": "2025-10-21",
+      "changes": [
+        "Initial release",
+        "Pre-loaded FLUX.1-dev and uncensored LoRA",
+        "Dynamic custom LoRA loading",
+        "S3 integration",
+        "Multiple image generation",
+        "Full parameter control"
+      ]
+    }
+  ]
+}
+

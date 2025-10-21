@@ -1,0 +1,22 @@
+{
+  "name": "flux-custom-faces-examples",
+  "version": "1.0.0",
+  "description": "Examples for FLUX Custom Faces RunPod Worker",
+  "main": "nodejs_example.js",
+  "scripts": {
+    "start": "node nodejs_example.js",
+    "test": "node nodejs_example.js"
+  },
+  "keywords": [
+    "flux",
+    "runpod",
+    "image-generation",
+    "ai"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.0"
+  }
+}
+

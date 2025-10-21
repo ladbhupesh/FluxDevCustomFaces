@@ -1,0 +1,21 @@
+{
+  "input": {
+    "prompt": "Portrait of Bhupesh, professional headshot with studio lighting",
+    "negative_prompt": "blurry, low quality, distorted",
+    "height": 1024,
+    "width": 1024,
+    "num_inference_steps": 28,
+    "guidance_scale": 3.5,
+    "num_images": 1,
+    "seed": 42,
+    "aws_access_key_id": "YOUR_AWS_ACCESS_KEY_ID",
+    "aws_secret_access_key": "YOUR_AWS_SECRET_ACCESS_KEY",
+    "aws_region": "ap-south-1",
+    "s3_bucket": "your-bucket-name",
+    "s3_prefix": "runpods_custom_faces",
+    "hf_token": "hf_YOUR_HUGGING_FACE_TOKEN",
+    "custom_lora_repo": "ladbhupesh/flux.1-dev-custom-faces",
+    "custom_lora_weight_name": "lora.safetensors"
+  }
+}
+
